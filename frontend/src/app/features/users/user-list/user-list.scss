@@ -3,3 +3,41 @@
   font: var(--mat-sys-headline-small);
   font-weight: 600;
 }
+
+// Keeps the table from jumping when the progress bar appears or disappears.
+.progress-slot {
+  height: 4px;
+  margin-bottom: 8px;
+}
+
+.table-container {
+  overflow-x: auto;
+  border: 1px solid var(--border-gray);
+  border-radius: var(--mat-sys-corner-medium);
+}
+
+.header-row {
+  background: var(--surface-gray);
+}
+
+.you {
+  margin-left: 4px;
+  color: var(--text-secondary);
+}
+
+.no-data {
+  padding: 24px 16px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.load-error {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--mat-sys-error);
+
+  p {
+    margin: 0;
+  }
+}

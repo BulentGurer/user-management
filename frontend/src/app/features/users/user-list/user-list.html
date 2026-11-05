@@ -1,1 +1,44 @@
-<h1 class="page-title">Users</h1>
+<h1 id="users-title" class="page-title">Users</h1>
+
+<div class="progress-slot">
+  @if (users.isLoading()) {
+    <mat-progress-bar mode="indeterminate" aria-label="Loading users" />
+  }
+</div>
+
+@if (users.error()) {
+  <div class="load-error" role="alert">
+    <p>{{ loadErrorMessage }}</p>
+    <button mat-stroked-button type="button" (click)="users.reload()">Try again</button>
+  </div>
+} @else if (users.hasValue()) {
+  <div class="table-container">
+    <table mat-table [dataSource]="users.value()" aria-labelledby="users-title">
+      <ng-container matColumnDef="username">
+        <th mat-header-cell *matHeaderCellDef scope="col">Username</th>
+        <td mat-cell *matCellDef="let user">
+          {{ user.username }}
+          @if (user.id === currentUserId()) {
+            <span class="you">(you)</span>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="fullName">
+        <th mat-header-cell *matHeaderCellDef scope="col">Full name</th>
+        <td mat-cell *matCellDef="let user">{{ user.fullName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="role">
+        <th mat-header-cell *matHeaderCellDef scope="col">Role</th>
+        <td mat-cell *matCellDef="let user"><app-role-badge [role]="user.role" /></td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns" class="header-row"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      <tr class="mat-mdc-row" *matNoDataRow>
+        <td class="mat-mdc-cell no-data" [attr.colspan]="columns.length">No users found.</td>
+      </tr>
+    </table>
+  </div>
+}
