@@ -1,0 +1,40 @@
+<a mat-button routerLink="/users" class="back">
+  <mat-icon>arrow_back</mat-icon>
+  Back to users
+</a>
+
+<div class="progress-slot">
+  @if (user.isLoading()) {
+    <mat-progress-bar mode="indeterminate" aria-label="Loading user" />
+  }
+</div>
+
+@if (errorMessage(); as message) {
+  <p class="page-error" role="alert">{{ message }}</p>
+} @else if (user.hasValue()) {
+  @let details = user.value();
+  <div class="title-row">
+    <h1 class="page-title">{{ details.fullName }}</h1>
+  </div>
+
+  <dl class="details">
+    <dt>Username</dt>
+    <dd>{{ details.username }}</dd>
+
+    <dt>Full name</dt>
+    <dd>{{ details.fullName }}</dd>
+
+    <dt>Role</dt>
+    <dd><app-role-badge [role]="details.role" /></dd>
+
+    <dt>Created</dt>
+    <dd>
+      <time [attr.datetime]="details.createdAt">{{ details.createdAt | date: 'medium' }}</time>
+    </dd>
+
+    <dt>Last updated</dt>
+    <dd>
+      <time [attr.datetime]="details.updatedAt">{{ details.updatedAt | date: 'medium' }}</time>
+    </dd>
+  </dl>
+}

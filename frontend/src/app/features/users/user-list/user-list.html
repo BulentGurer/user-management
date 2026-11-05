@@ -8,7 +8,7 @@
 
 @if (users.error()) {
   <div class="load-error" role="alert">
-    <p>{{ loadErrorMessage }}</p>
+    <p class="page-error">{{ loadErrorMessage }}</p>
     <button mat-stroked-button type="button" (click)="users.reload()">Try again</button>
   </div>
 } @else if (users.hasValue()) {

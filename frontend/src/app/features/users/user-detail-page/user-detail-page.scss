@@ -1,0 +1,31 @@
+.back {
+  margin: 0 0 16px -12px;
+}
+
+.title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+// Label and value side by side on a light grey card.
+.details {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 16px 32px;
+  max-width: 640px;
+  margin: 0;
+  padding: 24px;
+  background: var(--surface-gray);
+  border-radius: var(--mat-sys-corner-large);
+
+  dt {
+    color: var(--text-secondary);
+    font: var(--mat-sys-label-large);
+  }
+
+  dd {
+    margin: 0;
+  }
+}
