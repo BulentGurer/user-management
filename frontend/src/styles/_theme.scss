@@ -1,0 +1,55 @@
+@use '@angular/material' as mat;
+
+// Angular Material 3 theme. Material derives every colour from a palette;
+// the system colours are then overridden with neutral greys so that the UI
+// stays black, white and grey. The error colour is left untouched (red).
+html {
+  color-scheme: light;
+
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$blue-palette,
+        theme-type: light,
+      ),
+      typography: Inter,
+      density: 0,
+    )
+  );
+
+  @include mat.theme-overrides(
+    (
+      primary: var(--brand-black),
+      on-primary: var(--brand-white),
+      primary-container: var(--surface-gray),
+      on-primary-container: var(--brand-black),
+      secondary-container: var(--surface-gray),
+      on-secondary-container: var(--brand-black),
+      surface: var(--brand-white),
+      surface-bright: var(--brand-white),
+      surface-container-lowest: var(--brand-white),
+      surface-container-low: #f7f7f8,
+      surface-container: var(--surface-gray),
+      surface-container-high: #e8e8ea,
+      surface-container-highest: #e1e1e4,
+      on-surface: var(--brand-black),
+      on-surface-variant: var(--text-secondary),
+      outline: #8e9096,
+      outline-variant: var(--border-gray),
+      // Slightly rounded corners instead of Material's pill shapes.
+      corner-full: 6px,
+      corner-extra-large: 12px,
+      corner-large: 8px,
+      corner-medium: 6px,
+      corner-small: 4px,
+      corner-extra-small: 2px,
+    )
+  );
+
+  @include mat.toolbar-overrides(
+    (
+      container-background-color: var(--brand-black),
+      container-text-color: var(--brand-white),
+    )
+  );
+}

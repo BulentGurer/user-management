@@ -1,0 +1,12 @@
+// Brand tokens: a monochrome palette with a single accent colour.
+// The accent is used only on dark backgrounds or behind dark text
+// (never as text on white, which would fail contrast), and never for
+// destructive actions: delete and errors keep the Material error colour.
+:root {
+  --brand-black: #111111;
+  --brand-white: #ffffff;
+  --surface-gray: #f1f1f2;
+  --border-gray: #d5d6d9;
+  --text-secondary: #6a6c72;
+  --accent-yellow: #efdf00;
+}
