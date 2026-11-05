@@ -15,6 +15,10 @@
   @let details = user.value();
   <div class="title-row">
     <h1 class="page-title">{{ details.fullName }}</h1>
+    <a mat-flat-button [routerLink]="['/users', details.id, 'edit']">
+      <mat-icon>edit</mat-icon>
+      Edit
+    </a>
   </div>
 
   <dl class="details">

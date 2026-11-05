@@ -1,0 +1,28 @@
+.user-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 480px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.save-error {
+  margin-bottom: 8px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.submit {
+  min-width: 140px;
+}
+
+.submit mat-spinner {
+  margin: 0 auto;
+}

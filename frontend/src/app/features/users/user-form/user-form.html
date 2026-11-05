@@ -1,0 +1,96 @@
+<h1 class="page-title">{{ isEdit() ? 'Edit user' : 'New user' }}</h1>
+
+<div class="progress-slot">
+  @if (user.isLoading()) {
+    <mat-progress-bar mode="indeterminate" aria-label="Loading user" />
+  }
+</div>
+
+@if (loadErrorMessage(); as message) {
+  <p class="page-error" role="alert">{{ message }}</p>
+  <a mat-stroked-button routerLink="/users">Back to users</a>
+} @else if (ready()) {
+  <form class="user-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <mat-form-field appearance="outline">
+      <mat-label>Username</mat-label>
+      <input
+        matInput
+        formControlName="username"
+        autocomplete="off"
+        autocapitalize="none"
+        spellcheck="false"
+        required
+      />
+      <mat-hint>Letters, digits, dots, underscores and hyphens. Saved in lower case.</mat-hint>
+      @let username = form.controls.username;
+      @if (username.hasError('required')) {
+        <mat-error>Username is required.</mat-error>
+      } @else if (username.hasError('minlength') || username.hasError('maxlength')) {
+        <mat-error>
+          Username must be {{ limits.usernameMin }} to {{ limits.usernameMax }} characters.
+        </mat-error>
+      } @else if (username.hasError('pattern')) {
+        <mat-error>Use only letters, digits, dots, underscores and hyphens.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Full name</mat-label>
+      <input matInput formControlName="fullName" autocomplete="off" required />
+      @let fullName = form.controls.fullName;
+      @if (fullName.hasError('required')) {
+        <mat-error>Full name is required.</mat-error>
+      } @else if (fullName.hasError('minlength') || fullName.hasError('maxlength')) {
+        <mat-error>
+          Full name must be {{ limits.fullNameMin }} to {{ limits.fullNameMax }} characters.
+        </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ isEdit() ? 'New password' : 'Password' }}</mat-label>
+      <input
+        matInput
+        type="password"
+        formControlName="password"
+        autocomplete="new-password"
+        [required]="!isEdit()"
+      />
+      @if (isEdit()) {
+        <mat-hint>Leave blank to keep the current password.</mat-hint>
+      }
+      @let password = form.controls.password;
+      @if (password.hasError('required')) {
+        <mat-error>Password is required.</mat-error>
+      } @else if (password.hasError('minlength') || password.hasError('maxlength')) {
+        <mat-error>
+          Password must be {{ limits.passwordMin }} to {{ limits.passwordMax }} characters.
+        </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Role</mat-label>
+      <mat-select formControlName="role" required>
+        @for (option of roleOptions; track option.value) {
+          <mat-option [value]="option.value">{{ option.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (saveErrorMessage(); as message) {
+      <p class="page-error save-error" role="alert">{{ message }}</p>
+    }
+
+    <div class="actions">
+      <a mat-stroked-button [routerLink]="cancelLink()">Cancel</a>
+      <button mat-flat-button type="submit" class="submit" [disabled]="submitting()">
+        @if (submitting()) {
+          <mat-spinner diameter="20" aria-label="Saving" />
+        } @else {
+          {{ isEdit() ? 'Save changes' : 'Create user' }}
+        }
+      </button>
+    </div>
+  </form>
+}
