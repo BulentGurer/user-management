@@ -1,4 +1,5 @@
 .header {
+  gap: 32px;
   padding-inline: 24px;
 }
 
@@ -6,4 +7,65 @@
   font: var(--mat-sys-title-medium);
   font-weight: 600;
   letter-spacing: 0.02em;
+}
+
+.nav {
+  display: flex;
+  align-self: stretch;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding-inline: 4px;
+  color: var(--brand-white);
+  font: var(--mat-sys-label-large);
+  text-decoration: none;
+  // Reserve the underline's space so the text does not move when it appears.
+  border-bottom: 3px solid transparent;
+  border-top: 3px solid transparent;
+
+  &:hover {
+    border-bottom-color: var(--text-secondary);
+  }
+
+  // The yellow accent sits on the black bar, where its contrast is high.
+  &.active {
+    border-bottom-color: var(--accent-yellow);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent-yellow);
+    outline-offset: 2px;
+  }
+}
+
+.spacer {
+  flex: 1;
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font: var(--mat-sys-body-medium);
+}
+
+// Yellow background with black text: high contrast, unlike yellow text.
+.role-badge {
+  padding: 2px 8px;
+  border-radius: var(--mat-sys-corner-small);
+  background: var(--accent-yellow);
+  color: var(--brand-black);
+  font: var(--mat-sys-label-medium);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+// Secondary button on the dark bar: white outline and text.
+.logout {
+  --mat-button-outlined-label-text-color: var(--brand-white);
+  --mat-button-outlined-outline-color: var(--brand-white);
+  --mat-button-outlined-state-layer-color: var(--brand-white);
 }

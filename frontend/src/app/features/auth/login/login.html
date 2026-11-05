@@ -1,0 +1,63 @@
+<section class="login">
+  <h1 class="title">Sign in</h1>
+  <p class="subtitle">Use your username and password.</p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <mat-form-field appearance="outline">
+      <mat-label>Username</mat-label>
+      <input
+        matInput
+        formControlName="username"
+        autocomplete="username"
+        autocapitalize="none"
+        spellcheck="false"
+        required
+      />
+      @if (form.controls.username.hasError('required')) {
+        <mat-error>Username is required.</mat-error>
+      }
+      @if (form.controls.username.hasError('maxlength')) {
+        <mat-error>Username is too long.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Password</mat-label>
+      <input
+        matInput
+        formControlName="password"
+        [type]="passwordVisible() ? 'text' : 'password'"
+        autocomplete="current-password"
+        required
+      />
+      <button
+        mat-icon-button
+        matSuffix
+        type="button"
+        (click)="togglePasswordVisibility()"
+        [attr.aria-label]="passwordVisible() ? 'Hide password' : 'Show password'"
+        [attr.aria-pressed]="passwordVisible()"
+      >
+        <mat-icon>{{ passwordVisible() ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
+      @if (form.controls.password.hasError('required')) {
+        <mat-error>Password is required.</mat-error>
+      }
+      @if (form.controls.password.hasError('maxlength')) {
+        <mat-error>Password is too long.</mat-error>
+      }
+    </mat-form-field>
+
+    @if (errorMessage(); as message) {
+      <p class="form-error" role="alert">{{ message }}</p>
+    }
+
+    <button mat-flat-button type="submit" class="submit" [disabled]="submitting()">
+      @if (submitting()) {
+        <mat-spinner diameter="20" aria-label="Signing in" />
+      } @else {
+        Sign in
+      }
+    </button>
+  </form>
+</section>

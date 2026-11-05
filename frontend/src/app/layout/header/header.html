@@ -1,5 +1,30 @@
 <header>
   <mat-toolbar class="header">
     <span class="brand">User Management</span>
+
+    @if (authService.currentUser(); as user) {
+      <nav class="nav" aria-label="Main">
+        <a
+          class="nav-link"
+          routerLink="/users"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          >Users</a
+        >
+      </nav>
+
+      <span class="spacer"></span>
+
+      <div class="account">
+        <span class="user-name">{{ user.fullName }}</span>
+        @if (authService.isAdmin()) {
+          <span class="role-badge">admin</span>
+        }
+        <button mat-stroked-button type="button" class="logout" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          Sign out
+        </button>
+      </div>
+    }
   </mat-toolbar>
 </header>

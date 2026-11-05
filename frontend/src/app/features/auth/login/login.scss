@@ -1,0 +1,41 @@
+.login {
+  max-width: 400px;
+  margin: 48px auto 0;
+  padding: 32px;
+  background: var(--surface-gray);
+  border-radius: var(--mat-sys-corner-large);
+}
+
+.title {
+  margin: 0;
+  font: var(--mat-sys-headline-small);
+  font-weight: 600;
+}
+
+.subtitle {
+  margin: 4px 0 24px;
+  color: var(--text-secondary);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.form-error {
+  margin: 0 0 12px;
+  color: var(--mat-sys-error);
+}
+
+.submit {
+  height: 44px;
+}
+
+.submit mat-spinner {
+  margin: 0 auto;
+}

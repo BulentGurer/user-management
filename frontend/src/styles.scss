@@ -12,3 +12,19 @@ body {
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
 }
+
+// Self-hosted Material Symbols (see angular.json). mat-icon uses this class
+// as its default font set (configured in app.config.ts); icon names are
+// turned into glyphs through font ligatures.
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  direction: ltr;
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
