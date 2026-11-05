@@ -16,6 +16,7 @@ describe('validateEnv', () => {
     expect(env.PORT).toBe(3000);
     expect(env.DB_PORT).toBe(5432);
     expect(env.JWT_EXPIRES_IN).toBe('1h');
+    expect(env.SEED_DEMO_USERS).toBe(false);
   });
 
   it('converts numeric strings to numbers', () => {
@@ -72,6 +73,49 @@ describe('validateEnv', () => {
     );
 
     expect(message).not.toContain(shortSecret);
+  });
+
+  describe('demo user seeding', () => {
+    it.each([
+      ['true', true],
+      ['false', false],
+    ])('parses SEED_DEMO_USERS=%s strictly', (raw, expected) => {
+      const env = validateEnv({
+        ...validEnv,
+        SEED_DEMO_USERS: raw,
+        SEED_DEMO_PASSWORD: 'demo-password',
+      });
+
+      expect(env.SEED_DEMO_USERS).toBe(expected);
+    });
+
+    it('rejects values other than true and false', () => {
+      expect(() =>
+        validateEnv({ ...validEnv, SEED_DEMO_USERS: 'yes' }),
+      ).toThrow(/SEED_DEMO_USERS must be true or false/);
+    });
+
+    it('requires SEED_DEMO_PASSWORD when seeding is enabled', () => {
+      expect(() =>
+        validateEnv({ ...validEnv, SEED_DEMO_USERS: 'true' }),
+      ).toThrow(/SEED_DEMO_PASSWORD/);
+    });
+
+    it('rejects a SEED_DEMO_PASSWORD shorter than 8 characters', () => {
+      expect(() =>
+        validateEnv({
+          ...validEnv,
+          SEED_DEMO_USERS: 'true',
+          SEED_DEMO_PASSWORD: 'short',
+        }),
+      ).toThrow(/SEED_DEMO_PASSWORD must be longer than or equal to 8/);
+    });
+
+    it('does not require SEED_DEMO_PASSWORD when seeding is disabled', () => {
+      expect(() =>
+        validateEnv({ ...validEnv, SEED_DEMO_USERS: 'false' }),
+      ).not.toThrow();
+    });
   });
 });
 

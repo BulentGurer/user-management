@@ -8,9 +8,10 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserRole } from '../user-role.enum.js';
-
-export const USERNAME_MAX_LENGTH = 32;
-export const FULL_NAME_MAX_LENGTH = 100;
+import {
+  FULL_NAME_MAX_LENGTH,
+  USERNAME_MAX_LENGTH,
+} from '../user.constraints.js';
 
 @Entity({ name: 'users' })
 // Usernames are unique case-insensitively. The application stores them in

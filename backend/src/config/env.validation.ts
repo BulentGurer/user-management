@@ -1,7 +1,8 @@
 // class-transformer reads decorator type metadata through the Reflect API.
 import 'reflect-metadata';
-import { plainToInstance } from 'class-transformer';
+import { plainToInstance, Transform } from 'class-transformer';
 import {
+  IsBoolean,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -10,8 +11,10 @@ import {
   Max,
   Min,
   MinLength,
+  ValidateIf,
   validateSync,
 } from 'class-validator';
+import { PASSWORD_MIN_LENGTH } from '../users/user.constraints.js';
 
 export enum NodeEnvironment {
   Development = 'development',
@@ -25,6 +28,25 @@ const MAX_PORT = 65535;
 const MIN_JWT_SECRET_LENGTH = 32;
 // A number followed by a unit: s, m, h or d (for example 15m, 1h, 7d).
 const DURATION_PATTERN = /^\d+[smhd]$/;
+
+/**
+ * Accepts only "true" and "false". Implicit conversion would turn the string
+ * "false" into true (any non-empty string is truthy); other values are kept
+ * as they are so that @IsBoolean reports them. The raw value is read from
+ * the source object because `value` has already been implicitly converted.
+ */
+function toStrictBoolean({
+  obj,
+  key,
+}: {
+  obj: Record<string, unknown>;
+  key: string;
+}): unknown {
+  const raw = obj[key];
+  if (raw === 'true' || raw === true) return true;
+  if (raw === 'false' || raw === false) return false;
+  return raw;
+}
 
 export class EnvironmentVariables {
   @IsEnum(NodeEnvironment)
@@ -64,6 +86,17 @@ export class EnvironmentVariables {
     message: 'JWT_EXPIRES_IN must be a duration such as 15m, 1h or 7d',
   })
   JWT_EXPIRES_IN: string = '1h';
+
+  /** Seeds demo users into an empty database. Never enable in production. */
+  @Transform(toStrictBoolean, { toClassOnly: true })
+  @IsBoolean({ message: 'SEED_DEMO_USERS must be true or false' })
+  SEED_DEMO_USERS: boolean = false;
+
+  /** Shared password of the demo users; required only when seeding them. */
+  @ValidateIf((env: EnvironmentVariables) => env.SEED_DEMO_USERS === true)
+  @IsString()
+  @MinLength(PASSWORD_MIN_LENGTH)
+  SEED_DEMO_PASSWORD?: string;
 }
 
 /**
