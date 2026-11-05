@@ -19,6 +19,12 @@
   text-align: center;
 }
 
+.actions-cell {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+
 .load-error {
   display: flex;
   align-items: center;

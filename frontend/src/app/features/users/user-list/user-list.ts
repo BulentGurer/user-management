@@ -1,18 +1,36 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterLink } from '@angular/router';
 import { UsersApi } from '../../../core/api/users-api';
 import { AuthService } from '../../../core/auth/auth-service';
 import { RoleBadge } from '../../../shared/role-badge/role-badge';
 
 export const LOAD_ERROR_MESSAGE = 'Users could not be loaded. Please try again.';
 
-/** The user list, open to every signed-in user. */
+const COLUMNS = ['username', 'fullName', 'role'];
+const ADMIN_COLUMNS = [...COLUMNS, 'actions'];
+
+/**
+ * The user list, open to every signed-in user. Admins also get the links to
+ * create, view and edit users; for others they are not rendered at all. This
+ * is only for the UI: the backend rejects those requests from non-admins.
+ */
 @Component({
   selector: 'app-user-list',
-  imports: [MatButtonModule, MatProgressBarModule, MatTableModule, RoleBadge],
+  imports: [
+    MatButtonModule,
+    MatIconModule,
+    MatProgressBarModule,
+    MatTableModule,
+    MatTooltipModule,
+    RoleBadge,
+    RouterLink,
+  ],
   templateUrl: './user-list.html',
   styleUrl: './user-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,7 +40,8 @@ export class UserList {
   private readonly authService = inject(AuthService);
 
   protected readonly loadErrorMessage = LOAD_ERROR_MESSAGE;
-  protected readonly columns = ['username', 'fullName', 'role'];
+  protected readonly isAdmin = this.authService.isAdmin;
+  protected readonly columns = computed(() => (this.isAdmin() ? ADMIN_COLUMNS : COLUMNS));
 
   /** Loads once on creation; exposes loading, error and value as signals. */
   protected readonly users = rxResource({ stream: () => this.usersApi.list() });

@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { Observable, of, Subject, throwError } from 'rxjs';
 import { User } from '../../../core/api/user-models';
 import { UsersApi } from '../../../core/api/users-api';
@@ -9,19 +10,33 @@ import { LOAD_ERROR_MESSAGE, UserList } from './user-list';
 
 describe('UserList', () => {
   let list: ReturnType<typeof vi.fn<() => Observable<User[]>>>;
+  const currentUser = signal<User>(STANDARD_USER);
+  const isAdmin = signal(false);
   let fixture: ComponentFixture<UserList>;
   let element: HTMLElement;
 
   beforeEach(async () => {
     list = vi.fn<() => Observable<User[]>>();
+    currentUser.set(STANDARD_USER);
+    isAdmin.set(false);
     await TestBed.configureTestingModule({
       imports: [UserList],
       providers: [
+        provideRouter([]),
         { provide: UsersApi, useValue: { list } },
-        { provide: AuthService, useValue: { currentUser: signal(STANDARD_USER) } },
+        { provide: AuthService, useValue: { currentUser, isAdmin } },
       ],
     }).compileComponents();
   });
+
+  function signInAsAdmin(): void {
+    currentUser.set(ADMIN);
+    isAdmin.set(true);
+  }
+
+  function linkHrefs(): string[] {
+    return Array.from(element.querySelectorAll('a'), (link) => link.getAttribute('href') ?? '');
+  }
 
   async function render(): Promise<void> {
     fixture = TestBed.createComponent(UserList);
@@ -94,5 +109,28 @@ describe('UserList', () => {
 
     expect(element.querySelector('[role="alert"]')).toBeNull();
     expect(rows()).toEqual([['admin', 'System Admin', 'admin']]);
+  });
+
+  it('shows no admin actions to a standard user', async () => {
+    list.mockReturnValue(of([ADMIN, STANDARD_USER]));
+
+    await render();
+
+    expect(linkHrefs()).toEqual([]);
+    expect(element.textContent).not.toContain('New user');
+  });
+
+  it('gives admins links to create, view and edit users', async () => {
+    signInAsAdmin();
+    list.mockReturnValue(of([STANDARD_USER]));
+
+    await render();
+
+    expect(linkHrefs()).toEqual([
+      '/users/new',
+      `/users/${STANDARD_USER.id}`,
+      `/users/${STANDARD_USER.id}/edit`,
+    ]);
+    expect(element.querySelector(`[aria-label="Edit ${STANDARD_USER.username}"]`)).not.toBeNull();
   });
 });

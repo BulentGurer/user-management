@@ -1,4 +1,12 @@
-<h1 id="users-title" class="page-title">Users</h1>
+<div class="title-row">
+  <h1 id="users-title" class="page-title">Users</h1>
+  @if (isAdmin()) {
+    <a mat-flat-button routerLink="/users/new">
+      <mat-icon>person_add</mat-icon>
+      New user
+    </a>
+  }
+</div>
 
 <div class="progress-slot">
   @if (users.isLoading()) {
@@ -34,10 +42,35 @@
         <td mat-cell *matCellDef="let user"><app-role-badge [role]="user.role" /></td>
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="columns" class="header-row"></tr>
-      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      <!-- Rendered only for admins (see columns). -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef scope="col" class="actions-cell">
+          <span class="visually-hidden">Actions</span>
+        </th>
+        <td mat-cell *matCellDef="let user" class="actions-cell">
+          <a
+            mat-icon-button
+            [routerLink]="['/users', user.id]"
+            matTooltip="View"
+            [attr.aria-label]="'View ' + user.username"
+          >
+            <mat-icon>visibility</mat-icon>
+          </a>
+          <a
+            mat-icon-button
+            [routerLink]="['/users', user.id, 'edit']"
+            matTooltip="Edit"
+            [attr.aria-label]="'Edit ' + user.username"
+          >
+            <mat-icon>edit</mat-icon>
+          </a>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns()" class="header-row"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns()"></tr>
       <tr class="mat-mdc-row" *matNoDataRow>
-        <td class="mat-mdc-cell no-data" [attr.colspan]="columns.length">No users found.</td>
+        <td class="mat-mdc-cell no-data" [attr.colspan]="columns().length">No users found.</td>
       </tr>
     </table>
   </div>
