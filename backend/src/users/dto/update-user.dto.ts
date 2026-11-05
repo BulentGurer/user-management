@@ -1,4 +1,5 @@
-import { PartialType } from '@nestjs/mapped-types';
+// The Swagger variant also marks the fields optional in the API docs.
+import { PartialType } from '@nestjs/swagger';
 import { CreateUserDto } from './create-user.dto.js';
 
 /**
