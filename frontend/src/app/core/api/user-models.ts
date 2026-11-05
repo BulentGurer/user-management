@@ -20,6 +20,16 @@ export interface UserDetail extends User {
   updatedAt: string;
 }
 
+export interface CreateUserRequest {
+  username: string;
+  password: string;
+  fullName: string;
+  role: UserRole;
+}
+
+/** Only the given fields change; a password is sent only to set a new one. */
+export type UpdateUserRequest = Partial<CreateUserRequest>;
+
 export interface LoginResponse {
   accessToken: string;
   tokenType: 'Bearer';

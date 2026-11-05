@@ -7,13 +7,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
+import { PASSWORD_MAX_LENGTH, USERNAME_MAX_LENGTH } from '../../../core/api/user-constraints';
 import { HOME_PATH } from '../../../core/auth/auth-guards';
 import { AuthService } from '../../../core/auth/auth-service';
 
-// Same upper limits as the backend; the other rules are not repeated here,
-// so the login form reveals nothing about them.
-const USERNAME_MAX_LENGTH = 32;
-const PASSWORD_MAX_LENGTH = 128;
+// Only the upper limits are checked on login; the other rules are not
+// repeated here, so the login form reveals nothing about them.
 
 export const INVALID_CREDENTIALS_MESSAGE = 'Invalid username or password.';
 export const SERVER_UNREACHABLE_MESSAGE = 'Could not sign in. Please try again in a moment.';

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiPaths } from './api-paths';
-import { User } from './user-models';
+import { CreateUserRequest, UpdateUserRequest, User, UserDetail } from './user-models';
 
 /** HTTP client for the /api/users endpoints. Components never build API URLs themselves. */
 @Injectable({ providedIn: 'root' })
@@ -12,5 +12,18 @@ export class UsersApi {
   /** All users, ordered by username (the server decides the order). */
   list(): Observable<User[]> {
     return this.http.get<User[]>(ApiPaths.users);
+  }
+
+  /** One user, with timestamps (admin only). */
+  get(id: string): Observable<UserDetail> {
+    return this.http.get<UserDetail>(ApiPaths.user(id));
+  }
+
+  create(request: CreateUserRequest): Observable<UserDetail> {
+    return this.http.post<UserDetail>(ApiPaths.users, request);
+  }
+
+  update(id: string, request: UpdateUserRequest): Observable<UserDetail> {
+    return this.http.patch<UserDetail>(ApiPaths.user(id), request);
   }
 }
