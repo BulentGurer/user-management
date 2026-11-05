@@ -15,6 +15,7 @@ import {
   validateSync,
 } from 'class-validator';
 import { PASSWORD_MIN_LENGTH } from '../users/user.constraints.js';
+import { DURATION_PATTERN } from './duration.js';
 
 export enum NodeEnvironment {
   Development = 'development',
@@ -26,8 +27,6 @@ const MIN_PORT = 1;
 const MAX_PORT = 65535;
 // HS256 needs a key of at least 256 bits (32 bytes).
 const MIN_JWT_SECRET_LENGTH = 32;
-// A number followed by a unit: s, m, h or d (for example 15m, 1h, 7d).
-const DURATION_PATTERN = /^\d+[smhd]$/;
 
 /**
  * Accepts only "true" and "false". Implicit conversion would turn the string
