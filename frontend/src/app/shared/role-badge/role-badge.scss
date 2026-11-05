@@ -1,0 +1,16 @@
+:host {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--mat-sys-corner-small);
+  background: var(--surface-gray);
+  color: var(--brand-black);
+  font: var(--mat-sys-label-medium);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+// Yellow background with black text: high contrast, unlike yellow text.
+:host(.admin) {
+  background: var(--accent-yellow);
+}

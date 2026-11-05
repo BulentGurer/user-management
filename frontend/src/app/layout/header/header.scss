@@ -51,18 +51,6 @@
   font: var(--mat-sys-body-medium);
 }
 
-// Yellow background with black text: high contrast, unlike yellow text.
-.role-badge {
-  padding: 2px 8px;
-  border-radius: var(--mat-sys-corner-small);
-  background: var(--accent-yellow);
-  color: var(--brand-black);
-  font: var(--mat-sys-label-medium);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
 // Secondary button on the dark bar: white outline and text.
 .logout {
   --mat-button-outlined-label-text-color: var(--brand-white);

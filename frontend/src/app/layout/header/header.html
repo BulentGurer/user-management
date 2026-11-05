@@ -18,7 +18,7 @@
       <div class="account">
         <span class="user-name">{{ user.fullName }}</span>
         @if (authService.isAdmin()) {
-          <span class="role-badge">admin</span>
+          <app-role-badge [role]="user.role" />
         }
         <button mat-stroked-button type="button" class="logout" (click)="logout()">
           <mat-icon>logout</mat-icon>
