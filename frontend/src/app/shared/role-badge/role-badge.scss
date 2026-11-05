@@ -1,8 +1,10 @@
+// The outline keeps the badge visible on both white and grey backgrounds.
 :host {
   display: inline-block;
-  padding: 2px 8px;
+  padding: 1px 7px;
+  border: 1px solid var(--border-gray);
   border-radius: var(--mat-sys-corner-small);
-  background: var(--surface-gray);
+  background: var(--brand-white);
   color: var(--brand-black);
   font: var(--mat-sys-label-medium);
   font-weight: 600;
@@ -12,5 +14,6 @@
 
 // Yellow background with black text: high contrast, unlike yellow text.
 :host(.admin) {
+  border-color: var(--accent-yellow);
   background: var(--accent-yellow);
 }

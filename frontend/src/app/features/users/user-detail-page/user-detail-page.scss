@@ -1,3 +1,9 @@
+// The title row shares the card's width, so Edit sits right above the card.
+:host {
+  display: block;
+  max-width: 640px;
+}
+
 .back {
   margin: 0 0 16px -12px;
 }
@@ -7,7 +13,6 @@
   display: grid;
   grid-template-columns: max-content 1fr;
   gap: 16px 32px;
-  max-width: 640px;
   margin: 0;
   padding: 24px;
   background: var(--surface-gray);
