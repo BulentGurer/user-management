@@ -1,10 +1,18 @@
-import { ConflictException, NotFoundException } from '@nestjs/common';
-import { QueryFailedError, type Repository } from 'typeorm';
+import {
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
+import { type DataSource, QueryFailedError, type Repository } from 'typeorm';
 import type { PasswordHasher } from '../security/password-hasher.js';
 import type { CreateUserDto } from './dto/create-user.dto.js';
 import { User, USERNAME_UNIQUE_CONSTRAINT } from './entities/user.entity.js';
 import { UserRole } from './user-role.enum.js';
-import { USERNAME_TAKEN_MESSAGE, UsersService } from './users.service.js';
+import {
+  CANNOT_DELETE_SELF_MESSAGE,
+  USERNAME_TAKEN_MESSAGE,
+  UsersService,
+} from './users.service.js';
 
 const CREATE_DTO: CreateUserDto = {
   username: 'Elif.Sahin',
@@ -27,6 +35,7 @@ describe('UsersService', () => {
     create: ReturnType<typeof vi.fn>;
     save: ReturnType<typeof vi.fn>;
   };
+  let dataSource: { transaction: ReturnType<typeof vi.fn> };
   let service: UsersService;
 
   beforeEach(() => {
@@ -42,10 +51,23 @@ describe('UsersService', () => {
       hash: (plain) => Promise.resolve(`hashed(${plain})`),
       verify: () => Promise.resolve(true),
     };
+    dataSource = { transaction: vi.fn() };
     service = new UsersService(
       repository as unknown as Repository<User>,
+      dataSource as unknown as DataSource,
       hasher,
     );
+  });
+
+  // update() and the delete transaction lock rows in PostgreSQL; they are
+  // covered against a real database in test/users.e2e-spec.ts.
+  describe('remove', () => {
+    it('forbids admins to delete their own account, before touching the database', async () => {
+      await expect(service.remove('same-id', 'same-id')).rejects.toThrow(
+        new ForbiddenException(CANNOT_DELETE_SELF_MESSAGE),
+      );
+      expect(dataSource.transaction).not.toHaveBeenCalled();
+    });
   });
 
   describe('lookups', () => {
