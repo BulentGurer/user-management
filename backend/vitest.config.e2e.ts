@@ -4,6 +4,7 @@ export default defineConfig({
   resolve: { tsconfigPaths: true },
   test: {
     globals: true,
+    passWithNoTests: true,
     root: './',
     include: ['**/*.e2e-spec.ts'],
   },
