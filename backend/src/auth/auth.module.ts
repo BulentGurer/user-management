@@ -9,6 +9,7 @@ import { UsersModule } from '../users/users.module.js';
 import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
 import { JwtAuthGuard } from './jwt-auth.guard.js';
+import { RolesGuard } from './roles.guard.js';
 
 /** HMAC with SHA-256, pinned on both sides so no other algorithm is accepted. */
 const JWT_ALGORITHM = 'HS256';
@@ -32,6 +33,12 @@ const JWT_ALGORITHM = 'HS256';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, { provide: APP_GUARD, useClass: JwtAuthGuard }],
+  providers: [
+    AuthService,
+    // Global guards run in the order they are registered: first authenticate
+    // (who is calling?), then authorize (may they do this?).
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
+  ],
 })
 export class AuthModule {}
