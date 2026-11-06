@@ -6,13 +6,20 @@ export const UserRole = {
 } as const;
 export type UserRole = (typeof UserRole)[keyof typeof UserRole];
 
-/** A user as listed for every signed-in user. */
-export interface User {
+/** What a standard user sees of each user in the list. */
+export interface UserSummary {
   id: string;
-  username: string;
   fullName: string;
+}
+
+/** A user as admins see it in the list, and as /auth/me returns the signed-in user. */
+export interface User extends UserSummary {
+  username: string;
   role: UserRole;
 }
+
+/** One list row. The server decides by role: full rows for admins, summaries for others. */
+export type UserListItem = User | UserSummary;
 
 /** The admin-only detail view. Dates are ISO 8601 strings. */
 export interface UserDetail extends User {

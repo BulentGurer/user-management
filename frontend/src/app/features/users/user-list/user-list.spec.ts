@@ -2,21 +2,26 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Observable, of, Subject, throwError } from 'rxjs';
-import { User } from '../../../core/api/user-models';
+import { User, UserListItem, UserSummary } from '../../../core/api/user-models';
 import { UsersApi } from '../../../core/api/users-api';
 import { AuthService } from '../../../core/auth/auth-service';
 import { ADMIN, STANDARD_USER } from '../../../core/auth/testing/auth-test-helpers';
 import { LOAD_ERROR_MESSAGE, UserList } from './user-list';
 
+/** What the server sends a standard user: no usernames, no roles. */
+function summaryOf({ id, fullName }: User): UserSummary {
+  return { id, fullName };
+}
+
 describe('UserList', () => {
-  let list: ReturnType<typeof vi.fn<() => Observable<User[]>>>;
+  let list: ReturnType<typeof vi.fn<() => Observable<UserListItem[]>>>;
   const currentUser = signal<User>(STANDARD_USER);
   const isAdmin = signal(false);
   let fixture: ComponentFixture<UserList>;
   let element: HTMLElement;
 
   beforeEach(async () => {
-    list = vi.fn<() => Observable<User[]>>();
+    list = vi.fn<() => Observable<UserListItem[]>>();
     currentUser.set(STANDARD_USER);
     isAdmin.set(false);
     await TestBed.configureTestingModule({
@@ -44,28 +49,37 @@ describe('UserList', () => {
     await fixture.whenStable();
   }
 
-  /** The visible text of each body cell, row by row. */
+  /** The visible text of each data cell (actions left out), row by row. */
   function rows(): string[][] {
     return Array.from(element.querySelectorAll('tr[mat-row]'), (row) =>
-      Array.from(row.querySelectorAll('td'), (cell) =>
+      Array.from(row.querySelectorAll('td:not(.actions-cell)'), (cell) =>
         (cell.textContent ?? '').replace(/\s+/g, ' ').trim(),
       ),
     );
   }
 
-  it('shows every user in the order the server returns', async () => {
+  it('shows a standard user only full names, in the order the server returns', async () => {
+    list.mockReturnValue(of([summaryOf(ADMIN), summaryOf(STANDARD_USER)]));
+
+    await render();
+
+    expect(rows()).toEqual([['System Admin'], ['Mehmet Demir (you)']]);
+  });
+
+  it('shows admins usernames, full names and roles', async () => {
+    signInAsAdmin();
     list.mockReturnValue(of([ADMIN, STANDARD_USER]));
 
     await render();
 
     expect(rows()).toEqual([
-      ['admin', 'System Admin', 'admin'],
-      ['mehmet.demir (you)', 'Mehmet Demir', 'user'],
+      ['admin', 'System Admin (you)', 'admin'],
+      ['mehmet.demir', 'Mehmet Demir', 'user'],
     ]);
   });
 
   it('marks only the signed-in user as "you"', async () => {
-    list.mockReturnValue(of([ADMIN, STANDARD_USER]));
+    list.mockReturnValue(of([summaryOf(ADMIN), summaryOf(STANDARD_USER)]));
 
     await render();
 
@@ -73,7 +87,7 @@ describe('UserList', () => {
   });
 
   it('shows a progress bar while loading', async () => {
-    const response = new Subject<User[]>();
+    const response = new Subject<UserListItem[]>();
     list.mockReturnValue(response);
     fixture = TestBed.createComponent(UserList);
     element = fixture.nativeElement as HTMLElement;
@@ -81,7 +95,7 @@ describe('UserList', () => {
 
     expect(element.querySelector('mat-progress-bar')).not.toBeNull();
 
-    response.next([ADMIN]);
+    response.next([summaryOf(ADMIN)]);
     response.complete();
     await fixture.whenStable();
 
@@ -103,16 +117,16 @@ describe('UserList', () => {
     expect(element.querySelector('[role="alert"]')?.textContent).toContain(LOAD_ERROR_MESSAGE);
     expect(element.querySelector('table')).toBeNull();
 
-    list.mockReturnValueOnce(of([ADMIN]));
+    list.mockReturnValueOnce(of([summaryOf(ADMIN)]));
     element.querySelector<HTMLButtonElement>('[role="alert"] button')!.click();
     await fixture.whenStable();
 
     expect(element.querySelector('[role="alert"]')).toBeNull();
-    expect(rows()).toEqual([['admin', 'System Admin', 'admin']]);
+    expect(rows()).toEqual([['System Admin']]);
   });
 
   it('shows no admin actions to a standard user', async () => {
-    list.mockReturnValue(of([ADMIN, STANDARD_USER]));
+    list.mockReturnValue(of([summaryOf(ADMIN), summaryOf(STANDARD_USER)]));
 
     await render();
 

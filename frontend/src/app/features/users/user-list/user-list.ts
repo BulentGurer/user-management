@@ -12,8 +12,9 @@ import { RoleBadge } from '../../../shared/role-badge/role-badge';
 
 export const LOAD_ERROR_MESSAGE = 'Users could not be loaded. Please try again.';
 
-const COLUMNS = ['username', 'fullName', 'role'];
-const ADMIN_COLUMNS = [...COLUMNS, 'actions'];
+/** Standard users get only ids and full names from the server, so that is all they see. */
+const STANDARD_COLUMNS = ['fullName'];
+const ADMIN_COLUMNS = ['username', 'fullName', 'role', 'actions'];
 
 /**
  * The user list, open to every signed-in user. Admins also get the links to
@@ -41,7 +42,7 @@ export class UserList {
 
   protected readonly loadErrorMessage = LOAD_ERROR_MESSAGE;
   protected readonly isAdmin = this.authService.isAdmin;
-  protected readonly columns = computed(() => (this.isAdmin() ? ADMIN_COLUMNS : COLUMNS));
+  protected readonly columns = computed(() => (this.isAdmin() ? ADMIN_COLUMNS : STANDARD_COLUMNS));
 
   /** Loads once on creation; exposes loading, error and value as signals. */
   protected readonly users = rxResource({ stream: () => this.usersApi.list() });
