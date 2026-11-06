@@ -2,7 +2,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth-service';
-import { INVALID_CREDENTIALS_MESSAGE, Login, SERVER_UNREACHABLE_MESSAGE } from './login';
+import {
+  INVALID_CREDENTIALS_MESSAGE,
+  Login,
+  SERVER_UNREACHABLE_MESSAGE,
+  TOO_MANY_ATTEMPTS_MESSAGE,
+} from './login';
 
 describe('Login', () => {
   let fixture: ComponentFixture<Login>;
@@ -78,6 +83,16 @@ describe('Login', () => {
       INVALID_CREDENTIALS_MESSAGE,
     );
     expect(navigateByUrl).not.toHaveBeenCalled();
+  });
+
+  it('asks the user to wait after too many attempts', async () => {
+    login.mockRejectedValue(new HttpErrorResponse({ status: 429 }));
+
+    await submitWith('admin', 'secret-password');
+
+    expect(element.querySelector('[role="alert"]')?.textContent).toContain(
+      TOO_MANY_ATTEMPTS_MESSAGE,
+    );
   });
 
   it('tells the user to retry when the server cannot be reached', async () => {

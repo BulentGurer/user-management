@@ -16,6 +16,8 @@ import { AuthService } from '../../../core/auth/auth-service';
 
 export const INVALID_CREDENTIALS_MESSAGE = 'Invalid username or password.';
 export const SERVER_UNREACHABLE_MESSAGE = 'Could not sign in. Please try again in a moment.';
+export const TOO_MANY_ATTEMPTS_MESSAGE =
+  'Too many sign-in attempts. Please wait a minute and try again.';
 
 @Component({
   selector: 'app-login',
@@ -81,8 +83,15 @@ export class Login {
 }
 
 function messageFor(error: unknown): string {
-  const wrongCredentials =
-    error instanceof HttpErrorResponse &&
-    (error.status === HttpStatusCode.Unauthorized || error.status === HttpStatusCode.BadRequest);
-  return wrongCredentials ? INVALID_CREDENTIALS_MESSAGE : SERVER_UNREACHABLE_MESSAGE;
+  const status = error instanceof HttpErrorResponse ? error.status : undefined;
+  switch (status) {
+    case HttpStatusCode.Unauthorized:
+    case HttpStatusCode.BadRequest:
+      return INVALID_CREDENTIALS_MESSAGE;
+    // The server's sign-in rate limit.
+    case HttpStatusCode.TooManyRequests:
+      return TOO_MANY_ATTEMPTS_MESSAGE;
+    default:
+      return SERVER_UNREACHABLE_MESSAGE;
+  }
 }
