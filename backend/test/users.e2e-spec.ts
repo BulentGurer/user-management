@@ -35,10 +35,10 @@ describe('Users (e2e)', () => {
   });
 
   describe('role-based access', () => {
-    it('lets a standard user list users, without timestamps', async () => {
+    it('lists usernames and roles for an admin, without timestamps', async () => {
       const response = await http()
         .get('/api/users')
-        .set('Authorization', await bearer(standardUser))
+        .set('Authorization', await bearer(firstAdmin))
         .expect(200);
 
       const users = response.body as Record<string, unknown>[];
@@ -47,8 +47,29 @@ describe('Users (e2e)', () => {
         'ayse.yilmaz',
         'mehmet.demir',
       ]);
-      expect(users[0]).not.toHaveProperty('createdAt');
-      expect(users[0]).not.toHaveProperty('passwordHash');
+      expect(Object.keys(users[0]).sort()).toEqual([
+        'fullName',
+        'id',
+        'role',
+        'username',
+      ]);
+    });
+
+    it('lists only ids and full names for a standard user', async () => {
+      const response = await http()
+        .get('/api/users')
+        .set('Authorization', await bearer(standardUser))
+        .expect(200);
+
+      const users = response.body as Record<string, unknown>[];
+      expect(users.map((user) => user.id)).toEqual([
+        firstAdmin.id,
+        secondAdmin.id,
+        standardUser.id,
+      ]);
+      for (const user of users) {
+        expect(Object.keys(user).sort()).toEqual(['fullName', 'id']);
+      }
     });
 
     it('forbids every admin-only route to a standard user', async () => {

@@ -14,11 +14,14 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiConflictResponse,
+  ApiExtraModels,
   ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
+  ApiOkResponse,
   ApiTags,
   ApiUnauthorizedResponse,
+  getSchemaPath,
 } from '@nestjs/swagger';
 import type { AuthenticatedUser } from '../auth/authenticated-request.js';
 import { AdminOnly } from '../auth/decorators/admin-only.decorator.js';
@@ -26,7 +29,9 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { UserDetailResponseDto } from './dto/user-detail-response.dto.js';
+import { toUserListItem, type UserListItemDto } from './dto/user-list-item.js';
 import { UserResponseDto } from './dto/user-response.dto.js';
+import { UserSummaryResponseDto } from './dto/user-summary-response.dto.js';
 import { UsersService } from './users.service.js';
 
 const INVALID_INPUT = 'Invalid id or request body';
@@ -43,11 +48,29 @@ const USER_NOT_FOUND = 'No user with this id';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  /** Lists all users, ordered by username. Open to every signed-in user. */
+  /**
+   * Lists all users, ordered by username. Open to every signed-in user, but
+   * only admins get usernames and roles; standard users get id and full name.
+   */
   @Get()
-  async findAll(): Promise<UserResponseDto[]> {
+  @ApiExtraModels(UserResponseDto, UserSummaryResponseDto)
+  @ApiOkResponse({
+    description: 'Full rows for admins, summaries for standard users',
+    schema: {
+      type: 'array',
+      items: {
+        oneOf: [
+          { $ref: getSchemaPath(UserResponseDto) },
+          { $ref: getSchemaPath(UserSummaryResponseDto) },
+        ],
+      },
+    },
+  })
+  async findAll(
+    @CurrentUser() viewer: AuthenticatedUser,
+  ): Promise<UserListItemDto[]> {
     const users = await this.usersService.findAll();
-    return users.map((user) => UserResponseDto.fromEntity(user));
+    return users.map((user) => toUserListItem(user, viewer.role));
   }
 
   /** One user, including when it was created and last updated. */
