@@ -8,7 +8,7 @@
 
 @if (loadErrorMessage(); as message) {
   <p class="page-error" role="alert">{{ message }}</p>
-  <a mat-stroked-button routerLink="/users">Back to users</a>
+  <a mat-stroked-button [routerLink]="paths.users">Back to users</a>
 } @else if (ready()) {
   <form class="user-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
     <mat-form-field appearance="outline">

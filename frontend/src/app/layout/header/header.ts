@@ -4,6 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/auth/auth-service';
+import { AppPaths } from '../../core/routing/app-paths';
 import { RoleBadge } from '../../shared/role-badge/role-badge';
 
 /** The black top bar: navigation and the signed-in user, when there is one. */
@@ -23,6 +24,7 @@ import { RoleBadge } from '../../shared/role-badge/role-badge';
 })
 export class Header {
   protected readonly authService = inject(AuthService);
+  protected readonly paths = AppPaths;
 
   protected logout(): void {
     this.authService.logout();

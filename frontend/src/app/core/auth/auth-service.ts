@@ -4,9 +4,8 @@ import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ApiPaths } from '../api/api-paths';
 import { LoginResponse, User, UserRole } from '../api/user-models';
+import { AppPaths } from '../routing/app-paths';
 import { TokenStorage } from './token-storage';
-
-export const LOGIN_PATH = '/login';
 
 /**
  * The signed-in user as signals. The role shown here only drives the UI
@@ -56,7 +55,7 @@ export class AuthService {
   logout(returnUrl?: string): void {
     this.clearSession();
     const queryParams = returnUrl && returnUrl !== '/' ? { returnUrl } : {};
-    void this.router.navigate([LOGIN_PATH], { queryParams });
+    void this.router.navigate([AppPaths.login], { queryParams });
   }
 
   private clearSession(): void {

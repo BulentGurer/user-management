@@ -28,7 +28,6 @@ describe('UserForm', () => {
   let refreshCurrentUser: ReturnType<typeof vi.fn>;
   let fixture: ComponentFixture<UserForm>;
   let element: HTMLElement;
-  let navigate: ReturnType<typeof vi.spyOn>;
   let navigateByUrl: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
@@ -47,9 +46,7 @@ describe('UserForm', () => {
       ],
     }).compileComponents();
 
-    const router = TestBed.inject(Router);
-    navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
-    navigateByUrl = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+    navigateByUrl = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
   });
 
   /** Renders the form; with an id it is in edit mode, as on /users/:id/edit. */
@@ -114,7 +111,7 @@ describe('UserForm', () => {
         password: 'long-enough',
         role: UserRole.Admin,
       });
-      expect(navigate).toHaveBeenCalledWith(['/users', 'new-id']);
+      expect(navigateByUrl).toHaveBeenCalledWith('/users/new-id');
     });
 
     it("shows the server's reason when saving fails", async () => {
@@ -132,7 +129,7 @@ describe('UserForm', () => {
       await submit();
 
       expect(alertText()).toBe('Username is already taken.');
-      expect(navigate).not.toHaveBeenCalled();
+      expect(navigateByUrl).not.toHaveBeenCalled();
     });
 
     it('rejects a username with spaces before calling the server', async () => {
@@ -173,7 +170,7 @@ describe('UserForm', () => {
         fullName: 'Mehmet Can Demir',
         role: UserRole.User,
       });
-      expect(navigate).toHaveBeenCalledWith(['/users', MEHMET.id]);
+      expect(navigateByUrl).toHaveBeenCalledWith(`/users/${MEHMET.id}`);
     });
 
     it('sends a new password when one is typed', async () => {
@@ -202,7 +199,7 @@ describe('UserForm', () => {
 
       expect(refreshCurrentUser).toHaveBeenCalled();
       expect(navigateByUrl).toHaveBeenCalledWith('/users');
-      expect(navigate).not.toHaveBeenCalled();
+      expect(navigateByUrl).not.toHaveBeenCalledWith(`/users/${self.id}`);
     });
 
     it('says so when the user does not exist', async () => {

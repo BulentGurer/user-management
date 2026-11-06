@@ -1,4 +1,4 @@
-<a mat-button routerLink="/users" class="back">
+<a mat-button [routerLink]="paths.users" class="back">
   <mat-icon>arrow_back</mat-icon>
   Back to users
 </a>
@@ -15,7 +15,7 @@
   @let details = user.value();
   <div class="title-row">
     <h1 class="page-title">{{ details.fullName }}</h1>
-    <a mat-flat-button [routerLink]="['/users', details.id, 'edit']">
+    <a mat-flat-button [routerLink]="paths.editUser(details.id)">
       <mat-icon>edit</mat-icon>
       Edit
     </a>

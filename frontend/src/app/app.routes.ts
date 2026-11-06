@@ -3,6 +3,8 @@ import { adminGuard, authGuard, guestGuard } from './core/auth/auth-guards';
 
 const APP_NAME = 'User Management';
 
+// Route patterns. Links to these pages come from AppPaths (core/routing).
+
 export const routes: Routes = [
   {
     path: 'login',

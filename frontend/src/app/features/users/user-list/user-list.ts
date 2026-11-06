@@ -12,6 +12,7 @@ import { apiErrorMessage } from '../../../core/api/api-error';
 import { User, UserListItem } from '../../../core/api/user-models';
 import { UsersApi } from '../../../core/api/users-api';
 import { AuthService } from '../../../core/auth/auth-service';
+import { AppPaths } from '../../../core/routing/app-paths';
 import { ConfirmationService } from '../../../shared/confirm-dialog/confirmation-service';
 import { RoleBadge } from '../../../shared/role-badge/role-badge';
 
@@ -49,6 +50,7 @@ export class UserList {
   private readonly confirmation = inject(ConfirmationService);
   private readonly snackBar = inject(MatSnackBar);
 
+  protected readonly paths = AppPaths;
   protected readonly loadErrorMessage = LOAD_ERROR_MESSAGE;
   protected readonly isAdmin = this.authService.isAdmin;
   protected readonly columns = computed(() => (this.isAdmin() ? ADMIN_COLUMNS : STANDARD_COLUMNS));
@@ -69,7 +71,7 @@ export class UserList {
   protected openDetail(user: UserListItem, event: Event): void {
     const fromControl = (event.target as Element).closest('a, button') !== null;
     if (this.isAdmin() && !fromControl) {
-      void this.router.navigate(['/users', user.id]);
+      void this.router.navigateByUrl(AppPaths.user(user.id));
     }
   }
 

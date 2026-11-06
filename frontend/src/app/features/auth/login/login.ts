@@ -8,8 +8,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { PASSWORD_MAX_LENGTH, USERNAME_MAX_LENGTH } from '../../../core/api/user-constraints';
-import { HOME_PATH } from '../../../core/auth/auth-guards';
 import { AuthService } from '../../../core/auth/auth-service';
+import { HOME_PATH } from '../../../core/routing/app-paths';
 
 // Only the upper limits are checked on login; the other rules are not
 // repeated here, so the login form reveals nothing about them.

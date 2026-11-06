@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterLink } from '@angular/router';
 import { UsersApi } from '../../../core/api/users-api';
+import { AppPaths } from '../../../core/routing/app-paths';
 import { RoleBadge } from '../../../shared/role-badge/role-badge';
 import { userLoadErrorMessage } from '../user-load-error';
 
@@ -19,6 +20,8 @@ import { userLoadErrorMessage } from '../user-load-error';
 })
 export class UserDetailPage {
   private readonly usersApi = inject(UsersApi);
+
+  protected readonly paths = AppPaths;
 
   /** Bound from the :id route parameter (withComponentInputBinding). */
   readonly id = input.required<string>();

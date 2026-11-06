@@ -3,7 +3,8 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { ApiPaths, isApiRequest } from '../api/api-paths';
-import { AuthService, LOGIN_PATH } from './auth-service';
+import { AppPaths } from '../routing/app-paths';
+import { AuthService } from './auth-service';
 import { TokenStorage } from './token-storage';
 
 /**
@@ -38,7 +39,7 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
         error.status === HttpStatusCode.Unauthorized &&
         request.url !== ApiPaths.login;
 
-      if (sessionRejected && router.navigated && !router.url.startsWith(LOGIN_PATH)) {
+      if (sessionRejected && router.navigated && !router.url.startsWith(AppPaths.login)) {
         authService.logout(router.url);
       }
       return throwError(() => error);

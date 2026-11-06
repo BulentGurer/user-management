@@ -30,8 +30,8 @@ import {
 } from '../../../core/api/user-constraints';
 import { UserDetail, UserRole } from '../../../core/api/user-models';
 import { UsersApi } from '../../../core/api/users-api';
-import { HOME_PATH } from '../../../core/auth/auth-guards';
 import { AuthService } from '../../../core/auth/auth-service';
+import { AppPaths, HOME_PATH } from '../../../core/routing/app-paths';
 import { userLoadErrorMessage } from '../user-load-error';
 
 export const ROLE_OPTIONS: readonly { value: UserRole; label: string }[] = [
@@ -68,6 +68,7 @@ export class UserForm implements OnInit {
   /** Bound from the :id route parameter; missing when creating a user. */
   readonly id = input<string>();
 
+  protected readonly paths = AppPaths;
   protected readonly isEdit = computed(() => this.id() !== undefined);
   protected readonly roleOptions = ROLE_OPTIONS;
   protected readonly limits = {
@@ -140,9 +141,9 @@ export class UserForm implements OnInit {
   }
 
   /** Where Cancel goes: back to the user on edit, to the list on create. */
-  protected cancelLink(): string[] {
+  protected cancelLink(): string {
     const id = this.id();
-    return id === undefined ? [HOME_PATH] : [HOME_PATH, id];
+    return id === undefined ? AppPaths.users : AppPaths.user(id);
   }
 
   protected async submit(): Promise<void> {
@@ -191,6 +192,6 @@ export class UserForm implements OnInit {
         return;
       }
     }
-    await this.router.navigate([HOME_PATH, saved.id]);
+    await this.router.navigateByUrl(AppPaths.user(saved.id));
   }
 }

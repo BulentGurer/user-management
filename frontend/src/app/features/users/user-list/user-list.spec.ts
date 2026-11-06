@@ -161,13 +161,12 @@ describe('UserList', () => {
   });
 
   describe('row navigation', () => {
-    let navigate: ReturnType<typeof vi.spyOn>;
+    let navigateByUrl: ReturnType<typeof vi.spyOn>;
+    const detailUrl = `/users/${STANDARD_USER.id}`;
 
     beforeEach(() => {
-      const router = TestBed.inject(Router);
-      navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
-      // The row's own links navigate by URL; keep them away from real routing.
-      vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+      // Also keeps the row's own links away from real routing.
+      navigateByUrl = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
     });
 
     function firstRow(): HTMLTableRowElement {
@@ -181,7 +180,7 @@ describe('UserList', () => {
 
       firstRow().querySelector('td')!.click();
 
-      expect(navigate).toHaveBeenCalledWith(['/users', STANDARD_USER.id]);
+      expect(navigateByUrl).toHaveBeenCalledWith(detailUrl);
     });
 
     it('opens the detail page when an admin presses Enter on a focused row', async () => {
@@ -192,7 +191,7 @@ describe('UserList', () => {
       expect(firstRow().tabIndex).toBe(0);
       firstRow().dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
 
-      expect(navigate).toHaveBeenCalledWith(['/users', STANDARD_USER.id]);
+      expect(navigateByUrl).toHaveBeenCalledWith(detailUrl);
     });
 
     it('leaves clicks on the row actions to the actions themselves', async () => {
@@ -202,7 +201,7 @@ describe('UserList', () => {
 
       element.querySelector<HTMLElement>(`[aria-label="Edit ${STANDARD_USER.username}"]`)!.click();
 
-      expect(navigate).not.toHaveBeenCalled();
+      expect(navigateByUrl).not.toHaveBeenCalledWith(detailUrl);
     });
 
     it('does nothing for a standard user', async () => {
@@ -211,7 +210,7 @@ describe('UserList', () => {
 
       firstRow().querySelector('td')!.click();
 
-      expect(navigate).not.toHaveBeenCalled();
+      expect(navigateByUrl).not.toHaveBeenCalledWith(detailUrl);
       expect(firstRow().hasAttribute('tabindex')).toBe(false);
     });
   });

@@ -1,9 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthService, LOGIN_PATH } from './auth-service';
-
-/** Where signed-in users land, and where non-admins are sent back to. */
-export const HOME_PATH = '/users';
+import { AppPaths, HOME_PATH } from '../routing/app-paths';
+import { AuthService } from './auth-service';
 
 /** Only signed-in users; others go to the login page and come back afterwards. */
 export const authGuard: CanActivateFn = (_route, state) => {
@@ -12,7 +10,7 @@ export const authGuard: CanActivateFn = (_route, state) => {
 
   return authService.isAuthenticated()
     ? true
-    : router.createUrlTree([LOGIN_PATH], { queryParams: { returnUrl: state.url } });
+    : router.createUrlTree([AppPaths.login], { queryParams: { returnUrl: state.url } });
 };
 
 /**
