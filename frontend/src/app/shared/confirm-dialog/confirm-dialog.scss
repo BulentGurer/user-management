@@ -1,0 +1,15 @@
+@use '@angular/material' as mat;
+
+.message {
+  margin: 0;
+}
+
+// Destructive actions keep the Material error colour (never the accent colour).
+.destructive {
+  @include mat.button-overrides(
+    (
+      filled-container-color: var(--mat-sys-error),
+      filled-label-text-color: var(--mat-sys-on-error),
+    )
+  );
+}
