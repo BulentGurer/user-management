@@ -15,6 +15,9 @@ export default defineConfig({
       NODE_ENV: 'test',
       DB_NAME: TEST_DATABASE_NAME,
       SEED_DEMO_USERS: 'false',
+      // The suite signs in far more often than a person would; the limit
+      // itself is tested with its own low value (auth-rate-limit.e2e-spec).
+      LOGIN_RATE_LIMIT: '1000',
     },
     // The files share one database, so they must not run at the same time.
     fileParallelism: false,

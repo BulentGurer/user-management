@@ -1,5 +1,6 @@
 import type { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
+import type { NestExpressApplication } from '@nestjs/platform-express';
+import { Test, type TestingModuleBuilder } from '@nestjs/testing';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../../src/app.module.js';
@@ -8,13 +9,22 @@ import { User } from '../../src/users/entities/user.entity.js';
 import { UserRole } from '../../src/users/user-role.enum.js';
 import { UsersService } from '../../src/users/users.service.js';
 
-/** The real application with the same HTTP setup as main.ts. */
-export async function createTestApp(): Promise<INestApplication> {
-  const moduleRef = await Test.createTestingModule({
-    imports: [AppModule],
-  }).compile();
+/**
+ * The real application with the same HTTP setup as main.ts. `customize` can
+ * override providers, e.g. to use a lower rate limit in one test file.
+ */
+export async function createTestApp(
+  customize: (builder: TestingModuleBuilder) => TestingModuleBuilder = (
+    builder,
+  ) => builder,
+): Promise<INestApplication> {
+  const moduleRef = await customize(
+    Test.createTestingModule({ imports: [AppModule] }),
+  ).compile();
 
-  const app = moduleRef.createNestApplication({ logger: false });
+  const app = moduleRef.createNestApplication<NestExpressApplication>({
+    logger: false,
+  });
   configureApp(app);
   // Listen once on a free port. Otherwise supertest starts and stops the
   // server for every request, which breaks requests that overlap (such as

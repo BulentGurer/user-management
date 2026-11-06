@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { durationToSeconds } from '../config/duration.js';
 import type { EnvironmentVariables } from '../config/env.validation.js';
 import { SecurityModule } from '../security/security.module.js';
@@ -13,6 +14,10 @@ import { RolesGuard } from './roles.guard.js';
 
 /** HMAC with SHA-256, pinned on both sides so no other algorithm is accepted. */
 const JWT_ALGORITHM = 'HS256';
+const MILLISECONDS_PER_SECOND = 1000;
+
+export const TOO_MANY_LOGIN_ATTEMPTS_MESSAGE =
+  'Too many sign-in attempts. Please wait a moment and try again.';
 
 @Module({
   imports: [
@@ -29,6 +34,25 @@ const JWT_ALGORITHM = 'HS256';
           ),
         },
         verifyOptions: { algorithms: [JWT_ALGORITHM] },
+      }),
+    }),
+    // Counts requests per client IP address. Applied only where
+    // ThrottlerGuard is used: the sign-in route (see AuthController).
+    // In memory, which is enough for one API instance; several instances
+    // would share a store such as Redis.
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService<EnvironmentVariables, true>) => ({
+        throttlers: [
+          {
+            limit: config.get('LOGIN_RATE_LIMIT', { infer: true }),
+            ttl:
+              durationToSeconds(
+                config.get('LOGIN_RATE_LIMIT_WINDOW', { infer: true }),
+              ) * MILLISECONDS_PER_SECOND,
+          },
+        ],
+        errorMessage: TOO_MANY_LOGIN_ATTEMPTS_MESSAGE,
       }),
     }),
   ],

@@ -17,6 +17,9 @@ describe('validateEnv', () => {
     expect(env.DB_PORT).toBe(5432);
     expect(env.JWT_EXPIRES_IN).toBe('1h');
     expect(env.SEED_DEMO_USERS).toBe(false);
+    expect(env.LOGIN_RATE_LIMIT).toBe(10);
+    expect(env.LOGIN_RATE_LIMIT_WINDOW).toBe('1m');
+    expect(env.TRUST_PROXY_HOPS).toBe(0);
   });
 
   it('converts numeric strings to numbers', () => {
@@ -54,6 +57,24 @@ describe('validateEnv', () => {
     expect(() =>
       validateEnv({ ...validEnv, JWT_EXPIRES_IN: 'one hour' }),
     ).toThrow(/JWT_EXPIRES_IN/);
+  });
+
+  it('rejects a login rate limit below one attempt', () => {
+    expect(() => validateEnv({ ...validEnv, LOGIN_RATE_LIMIT: '0' })).toThrow(
+      /LOGIN_RATE_LIMIT/,
+    );
+  });
+
+  it('rejects an invalid LOGIN_RATE_LIMIT_WINDOW', () => {
+    expect(() =>
+      validateEnv({ ...validEnv, LOGIN_RATE_LIMIT_WINDOW: 'a minute' }),
+    ).toThrow(/LOGIN_RATE_LIMIT_WINDOW/);
+  });
+
+  it('rejects a negative TRUST_PROXY_HOPS', () => {
+    expect(() => validateEnv({ ...validEnv, TRUST_PROXY_HOPS: '-1' })).toThrow(
+      /TRUST_PROXY_HOPS/,
+    );
   });
 
   it('reports every invalid variable at once', () => {
