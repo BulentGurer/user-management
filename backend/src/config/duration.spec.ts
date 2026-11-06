@@ -1,4 +1,4 @@
-import { durationToSeconds } from './duration.js';
+import { durationToMilliseconds, durationToSeconds } from './duration.js';
 
 describe('durationToSeconds', () => {
   it.each([
@@ -16,4 +16,10 @@ describe('durationToSeconds', () => {
       expect(() => durationToSeconds(duration)).toThrow(/Invalid duration/);
     },
   );
+});
+
+describe('durationToMilliseconds', () => {
+  it('converts a duration to milliseconds', () => {
+    expect(durationToMilliseconds('1m')).toBe(60_000);
+  });
 });

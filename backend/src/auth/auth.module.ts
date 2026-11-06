@@ -3,21 +3,17 @@ import { ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { durationToSeconds } from '../config/duration.js';
 import type { EnvironmentVariables } from '../config/env.validation.js';
 import { SecurityModule } from '../security/security.module.js';
 import { UsersModule } from '../users/users.module.js';
+import { accessTokenOptions } from './access-token.options.js';
 import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
 import { JwtAuthGuard } from './jwt-auth.guard.js';
+import { loginRateLimitOptions } from './login-rate-limit.options.js';
 import { RolesGuard } from './roles.guard.js';
 
-/** HMAC with SHA-256, pinned on both sides so no other algorithm is accepted. */
-const JWT_ALGORITHM = 'HS256';
-const MILLISECONDS_PER_SECOND = 1000;
-
-export const TOO_MANY_LOGIN_ATTEMPTS_MESSAGE =
-  'Too many sign-in attempts. Please wait a moment and try again.';
+type AppConfig = ConfigService<EnvironmentVariables, true>;
 
 @Module({
   imports: [
@@ -25,35 +21,12 @@ export const TOO_MANY_LOGIN_ATTEMPTS_MESSAGE =
     SecurityModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService<EnvironmentVariables, true>) => ({
-        secret: config.get('JWT_SECRET', { infer: true }),
-        signOptions: {
-          algorithm: JWT_ALGORITHM,
-          expiresIn: durationToSeconds(
-            config.get('JWT_EXPIRES_IN', { infer: true }),
-          ),
-        },
-        verifyOptions: { algorithms: [JWT_ALGORITHM] },
-      }),
+      useFactory: (config: AppConfig) => accessTokenOptions(config),
     }),
-    // Counts requests per client IP address. Applied only where
-    // ThrottlerGuard is used: the sign-in route (see AuthController).
-    // In memory, which is enough for one API instance; several instances
-    // would share a store such as Redis.
+    // Sign-in rate limit, applied by ThrottlerGuard on the login route.
     ThrottlerModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService<EnvironmentVariables, true>) => ({
-        throttlers: [
-          {
-            limit: config.get('LOGIN_RATE_LIMIT', { infer: true }),
-            ttl:
-              durationToSeconds(
-                config.get('LOGIN_RATE_LIMIT_WINDOW', { infer: true }),
-              ) * MILLISECONDS_PER_SECOND,
-          },
-        ],
-        errorMessage: TOO_MANY_LOGIN_ATTEMPTS_MESSAGE,
-      }),
+      useFactory: (config: AppConfig) => loginRateLimitOptions(config),
     }),
   ],
   controllers: [AuthController],

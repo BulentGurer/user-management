@@ -6,10 +6,10 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { durationToSeconds } from '../config/duration.js';
 import type { EnvironmentVariables } from '../config/env.validation.js';
 import { PasswordHasher } from '../security/password-hasher.js';
 import { UsersService } from '../users/users.service.js';
+import { accessTokenTtlSeconds } from './access-token.options.js';
 import type { AccessTokenPayload } from './authenticated-request.js';
 import { LoginResponseDto } from './dto/login-response.dto.js';
 
@@ -32,9 +32,7 @@ export class AuthService implements OnModuleInit {
     private readonly jwtService: JwtService,
     config: ConfigService<EnvironmentVariables, true>,
   ) {
-    this.accessTokenTtlSeconds = durationToSeconds(
-      config.get('JWT_EXPIRES_IN', { infer: true }),
-    );
+    this.accessTokenTtlSeconds = accessTokenTtlSeconds(config);
   }
 
   async onModuleInit(): Promise<void> {

@@ -1,6 +1,8 @@
 /** A number followed by a unit: s, m, h or d (for example 15m, 1h, 7d). */
 export const DURATION_PATTERN = /^(\d+)([smhd])$/;
 
+const MILLISECONDS_PER_SECOND = 1000;
+
 const SECONDS_PER_UNIT: Record<string, number> = {
   s: 1,
   m: 60,
@@ -15,4 +17,8 @@ export function durationToSeconds(duration: string): number {
   }
   const [, amount, unit] = match;
   return Number(amount) * SECONDS_PER_UNIT[unit];
+}
+
+export function durationToMilliseconds(duration: string): number {
+  return durationToSeconds(duration) * MILLISECONDS_PER_SECOND;
 }

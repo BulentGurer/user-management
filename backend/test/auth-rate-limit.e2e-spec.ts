@@ -1,7 +1,10 @@
 import type { INestApplication } from '@nestjs/common';
 import { getOptionsToken } from '@nestjs/throttler';
 import request from 'supertest';
-import { TOO_MANY_LOGIN_ATTEMPTS_MESSAGE } from '../src/auth/auth.module.js';
+import {
+  buildLoginRateLimitOptions,
+  TOO_MANY_LOGIN_ATTEMPTS_MESSAGE,
+} from '../src/auth/login-rate-limit.options.js';
 import { UserRole } from '../src/users/user-role.enum.js';
 import {
   clearUsers,
@@ -29,10 +32,11 @@ describe('Sign-in rate limit (e2e)', () => {
   beforeEach(async () => {
     // A fresh application per test, so every test starts with empty counters.
     app = await createTestApp((builder) =>
-      builder.overrideProvider(getOptionsToken()).useValue({
-        throttlers: [{ limit: LIMIT, ttl: ONE_MINUTE_MS }],
-        errorMessage: TOO_MANY_LOGIN_ATTEMPTS_MESSAGE,
-      }),
+      builder
+        .overrideProvider(getOptionsToken())
+        .useValue(
+          buildLoginRateLimitOptions({ limit: LIMIT, windowMs: ONE_MINUTE_MS }),
+        ),
     );
     await clearUsers(app);
     user = await createUser(app, 'mehmet.demir', UserRole.User);
