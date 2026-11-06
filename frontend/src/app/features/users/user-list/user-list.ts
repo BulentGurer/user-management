@@ -17,6 +17,8 @@ import { ConfirmationService } from '../../../shared/confirm-dialog/confirmation
 import { RoleBadge } from '../../../shared/role-badge/role-badge';
 
 export const LOAD_ERROR_MESSAGE = 'Users could not be loaded. Please try again.';
+/** Long enough to read the confirmation, short enough not to get in the way. */
+export const DELETED_MESSAGE_DURATION_MS = 4000;
 
 /** Standard users get only ids and full names from the server, so that is all they see. */
 const STANDARD_COLUMNS = ['fullName'];
@@ -96,7 +98,9 @@ export class UserList {
     this.deleteErrorMessage.set(null);
     try {
       await firstValueFrom(this.usersApi.delete(user.id));
-      this.snackBar.open(`${user.fullName} was deleted.`, undefined, { duration: 4000 });
+      this.snackBar.open(`${user.fullName} was deleted.`, undefined, {
+        duration: DELETED_MESSAGE_DURATION_MS,
+      });
       this.users.reload();
     } catch (error) {
       this.deleteErrorMessage.set(apiErrorMessage(error));

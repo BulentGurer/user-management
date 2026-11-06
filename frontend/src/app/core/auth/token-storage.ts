@@ -21,6 +21,7 @@ interface StoredToken {
 }
 
 export const TOKEN_STORAGE_KEY = 'user-management.access-token';
+const MILLISECONDS_PER_SECOND = 1000;
 
 /**
  * localStorage survives reloads and new tabs, which keeps the app simple.
@@ -42,7 +43,7 @@ export class LocalStorageTokenStorage extends TokenStorage {
   save(token: string, expiresInSeconds: number): void {
     const stored: StoredToken = {
       value: token,
-      expiresAt: Date.now() + expiresInSeconds * 1000,
+      expiresAt: Date.now() + expiresInSeconds * MILLISECONDS_PER_SECOND,
     };
     localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(stored));
   }

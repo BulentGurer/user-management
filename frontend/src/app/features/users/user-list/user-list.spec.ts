@@ -10,7 +10,7 @@ import { AuthService } from '../../../core/auth/auth-service';
 import { ADMIN, STANDARD_USER } from '../../../core/auth/testing/auth-test-helpers';
 import { ConfirmDialogData } from '../../../shared/confirm-dialog/confirm-dialog';
 import { ConfirmationService } from '../../../shared/confirm-dialog/confirmation-service';
-import { LOAD_ERROR_MESSAGE, UserList } from './user-list';
+import { DELETED_MESSAGE_DURATION_MS, LOAD_ERROR_MESSAGE, UserList } from './user-list';
 
 /** What the server sends a standard user: no usernames, no roles. */
 function summaryOf({ id, fullName }: User): UserSummary {
@@ -270,7 +270,7 @@ describe('UserList', () => {
 
       expect(deleteUser).toHaveBeenCalledWith(STANDARD_USER.id);
       expect(openSnackBar).toHaveBeenCalledWith('Mehmet Demir was deleted.', undefined, {
-        duration: 4000,
+        duration: DELETED_MESSAGE_DURATION_MS,
       });
       expect(rows().map(([username]) => username)).toEqual(['admin', 'ayse.yilmaz']);
     });
