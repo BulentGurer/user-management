@@ -76,4 +76,14 @@ describe('UsersApi', () => {
 
     expect(await updated).toEqual(DETAIL);
   });
+
+  it('deletes a user', async () => {
+    const deleted = firstValueFrom(api.delete(DETAIL.id));
+
+    const request = http.expectOne(ApiPaths.user(DETAIL.id));
+    expect(request.request.method).toBe('DELETE');
+    request.flush(null, { status: 204, statusText: 'No Content' });
+
+    await expect(deleted).resolves.toBeNull();
+  });
 });

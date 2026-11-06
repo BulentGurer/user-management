@@ -26,4 +26,9 @@ export class UsersApi {
   update(id: string, request: UpdateUserRequest): Observable<UserDetail> {
     return this.http.patch<UserDetail>(ApiPaths.user(id), request);
   }
+
+  /** Deletes permanently. The server refuses self-deletion and deleting the last admin. */
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(ApiPaths.user(id));
+  }
 }
