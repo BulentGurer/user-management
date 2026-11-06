@@ -5,7 +5,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { UserListItem } from '../../../core/api/user-models';
 import { UsersApi } from '../../../core/api/users-api';
 import { AuthService } from '../../../core/auth/auth-service';
 import { RoleBadge } from '../../../shared/role-badge/role-badge';
@@ -39,6 +40,7 @@ const ADMIN_COLUMNS = ['username', 'fullName', 'role', 'actions'];
 export class UserList {
   private readonly usersApi = inject(UsersApi);
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   protected readonly loadErrorMessage = LOAD_ERROR_MESSAGE;
   protected readonly isAdmin = this.authService.isAdmin;
@@ -48,4 +50,15 @@ export class UserList {
   protected readonly users = rxResource({ stream: () => this.usersApi.list() });
 
   protected readonly currentUserId = computed(() => this.authService.currentUser()?.id);
+
+  /**
+   * Admins open a user's detail page by clicking (or pressing Enter on) the
+   * row. Clicks on the row's own links and buttons are left to them.
+   */
+  protected openDetail(user: UserListItem, event: Event): void {
+    const fromControl = (event.target as Element).closest('a, button') !== null;
+    if (this.isAdmin() && !fromControl) {
+      void this.router.navigate(['/users', user.id]);
+    }
+  }
 }

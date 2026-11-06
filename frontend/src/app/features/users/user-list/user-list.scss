@@ -8,6 +8,19 @@
   background: var(--surface-gray);
 }
 
+.clickable-row {
+  cursor: pointer;
+
+  &:hover {
+    background: var(--mat-sys-surface-container-low);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--brand-black);
+    outline-offset: -2px;
+  }
+}
+
 .you {
   margin-left: 4px;
   color: var(--text-secondary);

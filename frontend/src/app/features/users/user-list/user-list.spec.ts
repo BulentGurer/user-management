@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { Observable, of, Subject, throwError } from 'rxjs';
 import { User, UserListItem, UserSummary } from '../../../core/api/user-models';
 import { UsersApi } from '../../../core/api/users-api';
@@ -146,5 +146,61 @@ describe('UserList', () => {
       `/users/${STANDARD_USER.id}/edit`,
     ]);
     expect(element.querySelector(`[aria-label="Edit ${STANDARD_USER.username}"]`)).not.toBeNull();
+  });
+
+  describe('row navigation', () => {
+    let navigate: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+      const router = TestBed.inject(Router);
+      navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+      // The row's own links navigate by URL; keep them away from real routing.
+      vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+    });
+
+    function firstRow(): HTMLTableRowElement {
+      return element.querySelector<HTMLTableRowElement>('tr[mat-row]')!;
+    }
+
+    it('opens the detail page when an admin clicks a row', async () => {
+      signInAsAdmin();
+      list.mockReturnValue(of([STANDARD_USER]));
+      await render();
+
+      firstRow().querySelector('td')!.click();
+
+      expect(navigate).toHaveBeenCalledWith(['/users', STANDARD_USER.id]);
+    });
+
+    it('opens the detail page when an admin presses Enter on a focused row', async () => {
+      signInAsAdmin();
+      list.mockReturnValue(of([STANDARD_USER]));
+      await render();
+
+      expect(firstRow().tabIndex).toBe(0);
+      firstRow().dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+
+      expect(navigate).toHaveBeenCalledWith(['/users', STANDARD_USER.id]);
+    });
+
+    it('leaves clicks on the row actions to the actions themselves', async () => {
+      signInAsAdmin();
+      list.mockReturnValue(of([STANDARD_USER]));
+      await render();
+
+      element.querySelector<HTMLElement>(`[aria-label="Edit ${STANDARD_USER.username}"]`)!.click();
+
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it('does nothing for a standard user', async () => {
+      list.mockReturnValue(of([summaryOf(STANDARD_USER)]));
+      await render();
+
+      firstRow().querySelector('td')!.click();
+
+      expect(navigate).not.toHaveBeenCalled();
+      expect(firstRow().hasAttribute('tabindex')).toBe(false);
+    });
   });
 });
