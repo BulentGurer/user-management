@@ -37,6 +37,10 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+      LOGIN_RATE_LIMIT: ${LOGIN_RATE_LIMIT:-10}
+      LOGIN_RATE_LIMIT_WINDOW: ${LOGIN_RATE_LIMIT_WINDOW:-1m}
+      # nginx ("web") is the one proxy in front of the API.
+      TRUST_PROXY_HOPS: 1
       # Demo users make the project easy to try; never enable in production.
       SEED_DEMO_USERS: ${SEED_DEMO_USERS:-true}
       SEED_DEMO_PASSWORD: ${SEED_DEMO_PASSWORD:-}
