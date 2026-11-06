@@ -83,26 +83,10 @@ export class UsersService {
         const adminIds = await this.lockAdminIds(manager);
         const user = await this.findAndLock(manager, id);
 
-        const losesAdminRole =
-          user.role === UserRole.Admin &&
-          dto.role !== undefined &&
-          dto.role !== UserRole.Admin;
-        if (losesAdminRole) {
+        if (losesAdminRole(user, dto)) {
           assertAnotherAdminRemains(adminIds, user.id);
         }
-
-        if (dto.username !== undefined) {
-          user.username = normalizeUsername(dto.username);
-        }
-        if (dto.fullName !== undefined) {
-          user.fullName = dto.fullName;
-        }
-        if (dto.role !== undefined) {
-          user.role = dto.role;
-        }
-        if (newPasswordHash !== undefined) {
-          user.passwordHash = newPasswordHash;
-        }
+        applyChanges(user, dto, newPasswordHash);
         return manager.save(user);
       });
     } catch (error) {
@@ -163,5 +147,33 @@ export class UsersService {
       return new ConflictException(USERNAME_TAKEN_MESSAGE);
     }
     return error;
+  }
+}
+
+function losesAdminRole(user: User, dto: UpdateUserDto): boolean {
+  return (
+    user.role === UserRole.Admin &&
+    dto.role !== undefined &&
+    dto.role !== UserRole.Admin
+  );
+}
+
+/** Copies only the fields that were sent; the password arrives already hashed. */
+function applyChanges(
+  user: User,
+  dto: UpdateUserDto,
+  newPasswordHash: string | undefined,
+): void {
+  if (dto.username !== undefined) {
+    user.username = normalizeUsername(dto.username);
+  }
+  if (dto.fullName !== undefined) {
+    user.fullName = dto.fullName;
+  }
+  if (dto.role !== undefined) {
+    user.role = dto.role;
+  }
+  if (newPasswordHash !== undefined) {
+    user.passwordHash = newPasswordHash;
   }
 }
