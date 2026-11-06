@@ -13,7 +13,8 @@ RUN npm run build
 # nginx serves the static files and forwards /api to the backend, so the
 # browser talks to a single origin and no CORS configuration is needed.
 FROM nginx:1.30.6-alpine AS runtime
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY nginx/security-headers.conf /etc/nginx/snippets/security-headers.conf
 COPY --from=build /app/dist/user-management-web/browser /usr/share/nginx/html
 EXPOSE 80
 HEALTHCHECK --interval=10s --timeout=5s --retries=5 \
