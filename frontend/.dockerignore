@@ -1,0 +1,8 @@
+# Only package files, configuration, public/ and src/ are needed to build the image.
+node_modules
+dist
+.angular
+coverage
+*.log
+.env
+.env.*
