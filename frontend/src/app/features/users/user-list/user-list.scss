@@ -35,7 +35,17 @@
 .actions-cell {
   width: 1%;
   white-space: nowrap;
-  text-align: right;
+  // Left-aligned, so View and Edit stay in line on the own row without Delete.
+  text-align: left;
+}
+
+// Destructive actions keep the Material error colour (never the accent colour).
+.delete-button:not(:disabled) {
+  color: var(--mat-sys-error);
+}
+
+.delete-error {
+  margin-bottom: 16px;
 }
 
 .load-error {

@@ -9,10 +9,17 @@
 </div>
 
 <div class="progress-slot">
-  @if (users.isLoading()) {
-    <mat-progress-bar mode="indeterminate" aria-label="Loading users" />
+  @if (users.isLoading() || deletingId() !== null) {
+    <mat-progress-bar
+      mode="indeterminate"
+      [attr.aria-label]="deletingId() === null ? 'Loading users' : 'Deleting user'"
+    />
   }
 </div>
+
+@if (deleteErrorMessage(); as message) {
+  <p class="page-error delete-error" role="alert">{{ message }}</p>
+}
 
 @if (users.error()) {
   <div class="load-error" role="alert">
@@ -64,6 +71,20 @@
           >
             <mat-icon>edit</mat-icon>
           </a>
+          <!-- Admins cannot delete themselves (the server refuses it too). -->
+          @if (user.id !== currentUserId()) {
+            <button
+              mat-icon-button
+              type="button"
+              class="delete-button"
+              matTooltip="Delete"
+              [attr.aria-label]="'Delete ' + user.username"
+              [disabled]="deletingId() !== null"
+              (click)="deleteUser(user)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          }
         </td>
       </ng-container>
 

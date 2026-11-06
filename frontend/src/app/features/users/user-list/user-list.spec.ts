@@ -1,11 +1,15 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { provideRouter, Router } from '@angular/router';
 import { Observable, of, Subject, throwError } from 'rxjs';
 import { User, UserListItem, UserSummary } from '../../../core/api/user-models';
 import { UsersApi } from '../../../core/api/users-api';
 import { AuthService } from '../../../core/auth/auth-service';
 import { ADMIN, STANDARD_USER } from '../../../core/auth/testing/auth-test-helpers';
+import { ConfirmDialogData } from '../../../shared/confirm-dialog/confirm-dialog';
+import { ConfirmationService } from '../../../shared/confirm-dialog/confirmation-service';
 import { LOAD_ERROR_MESSAGE, UserList } from './user-list';
 
 /** What the server sends a standard user: no usernames, no roles. */
@@ -15,6 +19,9 @@ function summaryOf({ id, fullName }: User): UserSummary {
 
 describe('UserList', () => {
   let list: ReturnType<typeof vi.fn<() => Observable<UserListItem[]>>>;
+  let deleteUser: ReturnType<typeof vi.fn<(id: string) => Observable<void>>>;
+  let confirm: ReturnType<typeof vi.fn<(data: ConfirmDialogData) => Observable<boolean>>>;
+  let openSnackBar: ReturnType<typeof vi.fn>;
   const currentUser = signal<User>(STANDARD_USER);
   const isAdmin = signal(false);
   let fixture: ComponentFixture<UserList>;
@@ -22,14 +29,19 @@ describe('UserList', () => {
 
   beforeEach(async () => {
     list = vi.fn<() => Observable<UserListItem[]>>();
+    deleteUser = vi.fn<(id: string) => Observable<void>>();
+    confirm = vi.fn<(data: ConfirmDialogData) => Observable<boolean>>();
+    openSnackBar = vi.fn();
     currentUser.set(STANDARD_USER);
     isAdmin.set(false);
     await TestBed.configureTestingModule({
       imports: [UserList],
       providers: [
         provideRouter([]),
-        { provide: UsersApi, useValue: { list } },
+        { provide: UsersApi, useValue: { list, delete: deleteUser } },
         { provide: AuthService, useValue: { currentUser, isAdmin } },
+        { provide: ConfirmationService, useValue: { confirm } },
+        { provide: MatSnackBar, useValue: { open: openSnackBar } },
       ],
     }).compileComponents();
   });
@@ -201,6 +213,89 @@ describe('UserList', () => {
 
       expect(navigate).not.toHaveBeenCalled();
       expect(firstRow().hasAttribute('tabindex')).toBe(false);
+    });
+  });
+
+  describe('delete', () => {
+    const OTHER_ADMIN: User = {
+      ...ADMIN,
+      id: 'b1c2',
+      username: 'ayse.yilmaz',
+      fullName: 'Ayşe Yılmaz',
+    };
+
+    function deleteButton(user: User): HTMLButtonElement | null {
+      return element.querySelector<HTMLButtonElement>(`[aria-label="Delete ${user.username}"]`);
+    }
+
+    async function clickDelete(user: User): Promise<void> {
+      deleteButton(user)!.click();
+      await fixture.whenStable();
+    }
+
+    beforeEach(() => {
+      signInAsAdmin();
+      list.mockReturnValue(of([ADMIN, OTHER_ADMIN, STANDARD_USER]));
+    });
+
+    it('offers delete on every row except the signed-in admin', async () => {
+      await render();
+
+      expect(deleteButton(ADMIN)).toBeNull();
+      expect(deleteButton(OTHER_ADMIN)).not.toBeNull();
+      expect(deleteButton(STANDARD_USER)).not.toBeNull();
+    });
+
+    it('asks for confirmation and deletes nothing when cancelled', async () => {
+      confirm.mockReturnValue(of(false));
+      await render();
+
+      await clickDelete(STANDARD_USER);
+
+      expect(confirm).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining('Mehmet Demir (mehmet.demir)') as string,
+          destructive: true,
+        }),
+      );
+      expect(deleteUser).not.toHaveBeenCalled();
+    });
+
+    it('deletes after confirmation, reloads the list and says so', async () => {
+      confirm.mockReturnValue(of(true));
+      deleteUser.mockReturnValue(of(undefined));
+      await render();
+      list.mockReturnValue(of([ADMIN, OTHER_ADMIN]));
+
+      await clickDelete(STANDARD_USER);
+
+      expect(deleteUser).toHaveBeenCalledWith(STANDARD_USER.id);
+      expect(openSnackBar).toHaveBeenCalledWith('Mehmet Demir was deleted.', undefined, {
+        duration: 4000,
+      });
+      expect(rows().map(([username]) => username)).toEqual(['admin', 'ayse.yilmaz']);
+    });
+
+    it("shows the server's reason when it refuses, e.g. for the last admin", async () => {
+      confirm.mockReturnValue(of(true));
+      deleteUser.mockReturnValue(
+        throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 409,
+              error: { message: 'At least one admin must remain' },
+            }),
+        ),
+      );
+      await render();
+
+      await clickDelete(OTHER_ADMIN);
+
+      expect(element.querySelector('.delete-error')?.textContent).toContain(
+        'At least one admin must remain.',
+      );
+      expect(list).toHaveBeenCalledTimes(1);
+      expect(deleteButton(OTHER_ADMIN)!.disabled).toBe(false);
     });
   });
 });
