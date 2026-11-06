@@ -21,5 +21,38 @@ services:
       retries: 10
       start_period: 10s
 
+  # On start: runs the migrations, seeds the demo users into an empty
+  # database, then serves the API (see backend/docker-entrypoint.sh).
+  # Not published to the host: the browser reaches it through "web".
+  api:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:?DB_NAME is required}
+      DB_USER: ${DB_USER:?DB_USER is required}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+      # Demo users make the project easy to try; never enable in production.
+      SEED_DEMO_USERS: ${SEED_DEMO_USERS:-true}
+      SEED_DEMO_PASSWORD: ${SEED_DEMO_PASSWORD:-}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # nginx: serves the Angular app and forwards /api to "api" (one origin).
+  web:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${WEB_PORT:-8080}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
 volumes:
   db-data:
