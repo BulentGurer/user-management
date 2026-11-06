@@ -186,11 +186,12 @@ backend/                NestJS API
   src/health/           health endpoint
   test/                 end-to-end tests
 frontend/               Angular app
-  src/app/core/         API clients, authentication, guards, interceptor
+  src/app/core/         API clients, page links, authentication, guards, interceptor
   src/app/features/     pages: login, user list, detail, form
   src/app/shared/       role badge, confirmation dialog
   src/app/layout/       header
   nginx/                nginx configuration of the web image
+docs/screenshots/       screenshots used in this README
 docker-compose.yml      db, api and web
 .github/workflows/      CI
 ```
@@ -244,9 +245,9 @@ the value.
 nginx does. The browser only ever talks to its own origin.
 
 **The token is stored in `localStorage`.** Simple, and it survives a page reload. The trade-off: a
-script injected through an XSS bug could read it, which an `httpOnly` cookie would prevent. A cookie,
-on the other hand, would need CSRF protection, and the API would have to handle it. Angular escapes template
-output by default, nginx sends a strict Content Security Policy (no inline scripts, no other
+script injected through an XSS bug could read it, which an `httpOnly` cookie would prevent. A
+cookie, on the other hand, would need CSRF protection and cookie handling in the API. Angular
+escapes template output by default, nginx sends a strict Content Security Policy (no inline scripts, no other
 origins), and tokens are short-lived.
 
 **Sign-in is rate limited per IP address.** After `LOGIN_RATE_LIMIT` attempts within the window the

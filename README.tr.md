@@ -189,11 +189,12 @@ backend/                NestJS API
   src/health/           health endpoint'i
   test/                 uçtan uca testler
 frontend/               Angular uygulaması
-  src/app/core/         API istemcileri, kimlik doğrulama, guard'lar, interceptor
+  src/app/core/         API istemcileri, sayfa linkleri, kimlik doğrulama, guard'lar, interceptor
   src/app/features/     sayfalar: giriş, kullanıcı listesi, detay, form
   src/app/shared/       rol rozeti, onay dialog'u
   src/app/layout/       header
   nginx/                web image'ının nginx yapılandırması
+docs/screenshots/       README'deki ekran görüntüleri
 docker-compose.yml      db, api ve web
 .github/workflows/      CI
 ```
@@ -241,7 +242,7 @@ bağımlıdır; algoritma onlara dokunmadan değişebilir. Giriş, bilinmeyen ku
 cevabını verir; böylece hangi kullanıcı adlarının var olduğunu ele vermez. Şifreler 128 karakterle
 sınırlıdır, çünkü çok uzun girdileri hash'lemek ucuz bir denial-of-service yoludur.
 
-**Şifre hash'i asla dönülmez.** Servis entity'lerle çalışır; controller'lar bunları alan alan
+**Şifre hash'i hiçbir yanıtta yer almaz.** Servis entity'lerle çalışır; controller'lar bunları alan alan
 oluşturulan yanıt DTO'larına çevirir, böylece yeni bir kolon kazara dışarı sızamaz.
 
 **Yapılandırma hızlı hata verir.** Ortam değişkenleri açılışta doğrulanır; `JWT_SECRET` eksik ya da
@@ -252,11 +253,11 @@ Docker'da bunu nginx yapar. Tarayıcı her zaman yalnızca kendi origin'iyle kon
 
 **Token `localStorage` içinde saklanır.** Basittir ve sayfa yenilemesinden sonra da kalır. Bedeli:
 bir XSS açığıyla enjekte edilen bir script onu okuyabilir; `httpOnly` bir cookie bunu engellerdi.
-Öte yandan cookie, CSRF koruması gerektirir ve API'nin onu yönetmesi gerekir. Angular template
+Öte yandan cookie, CSRF koruması ve API tarafında cookie yönetimi gerektirirdi. Angular template
 çıktısını varsayılan olarak escape eder, nginx katı bir Content Security Policy gönderir (inline
 script yok, başka origin yok) ve token'lar kısa ömürlüdür.
 
-**Giriş, IP adresi başına rate limit'lidir.** Pencere içinde `LOGIN_RATE_LIMIT` denemeden sonra API,
+**Girişe IP adresi başına rate limit uygulanır.** Pencere içinde `LOGIN_RATE_LIMIT` denemeden sonra API,
 şifre tahminine karşı `429` döner. nginx'in arkasında istemci adresi `X-Forwarded-For`'dan gelir,
 ama yalnızca `TRUST_PROXY_HOPS` kadar proxy adımına güvenilir; böylece bir istemci uydurma bir
 header'la sayacını sıfırlayamaz (bir testle doğrulanır). Sayaçlar bellekte tutulur; bu tek bir API
@@ -283,7 +284,7 @@ bir kurulumda korunur veya kapatılırdı.
 birlikte paketlenir.
 
 **Container'lar.** Multi-stage build'ler derleyicileri ve geliştirme bağımlılıklarını çalışma
-zamanı image'larının dışında tutar; API yetkisiz bir kullanıcıyla çalışır. Compose servisleri health
+zamanı image'larının dışında tutar; API root olmayan, ayrıcalıksız bir kullanıcıyla çalışır. Compose servisleri health
 check'lerle sırayla başlatır: önce veritabanı, sonra API, sonra web.
 
 ## İleride yapılabilecekler
