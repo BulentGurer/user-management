@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Read-only token: the workflow only checks code.
+permissions:
+  contents: read
+
+# A newer push to the same branch makes the older run pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (lint, unit, e2e, build)
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: backend
+    # A real PostgreSQL for the end-to-end tests, the same image as in Compose.
+    services:
+      postgres:
+        image: postgres:18.4-alpine3.24
+        env:
+          POSTGRES_DB: user_management
+          POSTGRES_USER: user_management
+          POSTGRES_PASSWORD: ci-only-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U user_management -d user_management"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    # Throwaway values for this job only; nothing here is a real secret.
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_NAME: user_management
+      DB_USER: user_management
+      DB_PASSWORD: ci-only-password
+      JWT_SECRET: ci-only-jwt-secret-0123456789abcdef
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npx prettier --check src test
+      - run: npm run build
+      - run: npm test
+      - run: npm run test:e2e
+
+  frontend:
+    name: Frontend (lint, unit, build)
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npx prettier --check src
+      - run: npm test -- --watch=false
+      - run: npm run build
+
+  docker:
+    name: Docker images
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      # Compose needs the variables from .env; the example values are enough
+      # to build the images.
+      - run: cp .env.example .env
+      - run: docker compose build
