@@ -28,6 +28,20 @@ görebilir.
 - Docker Compose ile **tek komutla çalıştırma** ve GitHub Actions üzerinde **CI** (lint, birim ve
   uçtan uca testler, build'ler, Docker image'ları).
 
+## Ekran görüntüleri
+
+Admin'ler her kullanıcıyı kullanıcı adı ve rolüyle görür; görüntüleyebilir, düzenleyebilir ve silebilir:
+
+![Admin olarak kullanıcı listesi](docs/screenshots/admin-user-list.png)
+
+Standart kullanıcılar aynı listeyi yalnızca ad soyadlarla görür; API onlara daha fazlasını göndermez:
+
+![Standart kullanıcı olarak kullanıcı listesi](docs/screenshots/standard-user-list.png)
+
+Bir kullanıcıyı silmeden önce onay istenir:
+
+![Silme onay dialog'u](docs/screenshots/delete-confirmation.png)
+
 ## Teknolojiler
 
 | Bölüm | Seçim |

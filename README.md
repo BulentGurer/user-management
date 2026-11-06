@@ -26,6 +26,20 @@ users can see who is in the system.
 - **One command to run everything** with Docker Compose, and **CI** on GitHub Actions (lint, unit
   and end-to-end tests, builds, Docker images).
 
+## Screenshots
+
+Admins see every user with username and role, and can view, edit and delete them:
+
+![User list as an admin](docs/screenshots/admin-user-list.png)
+
+Standard users see the same list with full names only; the API does not send them more:
+
+![User list as a standard user](docs/screenshots/standard-user-list.png)
+
+Deleting a user asks for confirmation first:
+
+![Delete confirmation dialog](docs/screenshots/delete-confirmation.png)
+
 ## Tech stack
 
 | Part | Choice |
