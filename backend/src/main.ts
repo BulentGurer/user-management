@@ -10,6 +10,9 @@ async function bootstrap() {
     app.get<ConfigService<EnvironmentVariables, true>>(ConfigService);
 
   configureApp(app);
+  // Close the database pool on SIGTERM (e.g. "docker compose down") instead
+  // of dropping connections when the process is killed.
+  app.enableShutdownHooks();
   await app.listen(config.get('PORT', { infer: true }));
 }
 await bootstrap();
